@@ -12,4 +12,4 @@ Aplikasi web full-stack untuk mengelola request lagu dan titip salam pendengar R
 2. **Dashboard Admin (Penyiar Radio):** Monitoring request masuk & manajemen status lagu.
 
 ---
-*Dikembangkan oleh Anka Iccong Saputra (XI RPL)*
+*Dikembangkan oleh Anka Iccong Saputra (XII RPL 2)*

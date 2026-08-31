@@ -13,7 +13,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final _supabase = Supabase.instance.client;
   bool _isLoading = true;
   List<Map<String, dynamic>> _allRequests = [];
-  String _selectedFilter = 'all'; // 'all', 'pending', 'played', 'rejected'
+  String _selectedFilter = 'all';
 
   @override
   void initState() {
@@ -21,7 +21,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     _fetchRequests();
   }
 
-  // Mengambil data dari Supabase
   Future<void> _fetchRequests() async {
     setState(() => _isLoading = true);
     try {
@@ -36,7 +35,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error memuat data: $e')),
+          SnackBar(
+            content: Text('Error memuat data: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     } finally {
@@ -44,7 +46,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  // Mengubah status request
   Future<void> _updateStatus(String id, String newStatus) async {
     try {
       await _supabase
@@ -56,13 +57,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memperbarui status: $e')),
+          SnackBar(
+            content: Text('Gagal memperbarui status: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
   }
 
-  // Fungsi Logout Admin
   Future<void> _logout() async {
     await _supabase.auth.signOut();
     if (mounted) {
@@ -73,7 +76,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  // Filter List Data
   List<Map<String, dynamic>> get _filteredRequests {
     if (_selectedFilter == 'all') return _allRequests;
     return _allRequests.where((req) => req['status'] == _selectedFilter).toList();
@@ -81,41 +83,58 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Menghitung statistik data
     final pendingCount = _allRequests.where((r) => r['status'] == 'pending').length;
     final playedCount = _allRequests.where((r) => r['status'] == 'played').length;
     final rejectedCount = _allRequests.where((r) => r['status'] == 'rejected').length;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFA5D6A7).withOpacity(0.08),
       appBar: AppBar(
-        title: const Text('Dashboard Penyiar - Radio Intan Garut'),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
+        title: const Row(
+          children: [
+            Icon(Icons.dashboard_rounded, color: Colors.white),
+            SizedBox(width: 10),
+            Text(
+              'Dashboard Penyiar - Radio Intan Garut',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ],
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.lightBlue, Colors.blueAccent],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+        elevation: 4,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
             tooltip: 'Refresh Data',
             onPressed: _fetchRequests,
           ),
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout_rounded, color: Colors.white),
             tooltip: 'Keluar Admin',
             onPressed: _logout,
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.lightBlue))
           : RefreshIndicator(
               onRefresh: _fetchRequests,
+              color: Colors.lightBlue,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // --- 1. RINGKASAN STATISTIK ---
+                    // --- 1. RINGKASAN STATISTIK DESAIN MODERN ---
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final isDesktop = constraints.maxWidth > 700;
@@ -126,22 +145,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             _buildStatCard(
                               title: 'Menunggu (Pending)',
                               count: pendingCount,
-                              color: Colors.orange,
-                              icon: Icons.hourglass_top,
+                              color: Colors.orangeAccent,
+                              icon: Icons.hourglass_top_rounded,
                             ),
                             SizedBox(height: isDesktop ? 0 : 12, width: isDesktop ? 12 : 0),
                             _buildStatCard(
                               title: 'Sudah Diputar',
                               count: playedCount,
-                              color: Colors.green,
-                              icon: Icons.play_circle_fill,
+                              color: Colors.lightBlue,
+                              icon: Icons.play_circle_fill_rounded,
                             ),
                             SizedBox(height: isDesktop ? 0 : 12, width: isDesktop ? 12 : 0),
                             _buildStatCard(
                               title: 'Ditolak',
                               count: rejectedCount,
-                              color: Colors.red,
-                              icon: Icons.cancel,
+                              color: Colors.redAccent,
+                              icon: Icons.cancel_rounded,
                             ),
                           ],
                         );
@@ -154,8 +173,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Row(
                       children: [
                         const Text(
-                          'Antrean Request',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          'Antrean Request Lagu',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
                         const Spacer(),
                         Wrap(
@@ -195,37 +218,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               String statusText;
                               switch (status) {
                                 case 'played':
-                                  statusColor = Colors.green;
+                                  statusColor = Colors.lightBlue;
                                   statusText = 'DIPUTAR';
                                   break;
                                 case 'rejected':
-                                  statusColor = Colors.red;
+                                  statusColor = Colors.redAccent;
                                   statusText = 'DITOLAK';
                                   break;
                                 default:
-                                  statusColor = Colors.orange;
+                                  statusColor = Colors.orangeAccent;
                                   statusText = 'PENDING';
                               }
 
                               return Card(
-                                elevation: 2,
-                                margin: const EdgeInsets.only(bottom: 12),
+                                elevation: 3,
+                                shadowColor: Colors.lightBlue.withOpacity(0.08),
+                                margin: const EdgeInsets.only(bottom: 14),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
+                                  padding: const EdgeInsets.all(18.0),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       // Avatar Pendengar
                                       CircleAvatar(
-                                        backgroundColor: Colors.deepOrange.shade100,
+                                        radius: 22,
+                                        backgroundColor: Colors.lightBlue.shade50,
                                         child: Text(
                                           (req['nama_pendengar'] ?? 'A')[0].toUpperCase(),
                                           style: const TextStyle(
-                                            color: Colors.deepOrange,
+                                            color: Colors.lightBlue,
                                             fontWeight: FontWeight.bold,
+                                            fontSize: 18,
                                           ),
                                         ),
                                       ),
@@ -243,42 +269,54 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 18,
+                                                    color: Colors.black87,
                                                   ),
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Text(
                                                   '- ${req['penyanyi']}',
                                                   style: TextStyle(
-                                                      color: Colors.grey[700], fontSize: 16),
+                                                    color: Colors.grey[700],
+                                                    fontSize: 16,
+                                                  ),
                                                 ),
                                               ],
                                             ),
                                             const SizedBox(height: 6),
                                             Text(
                                               'Dari: ${req['nama_pendengar']}',
-                                              style: const TextStyle(fontWeight: FontWeight.w600),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black54,
+                                              ),
                                             ),
-                                            const SizedBox(height: 4),
+                                            const SizedBox(height: 8),
                                             Container(
-                                              padding: const EdgeInsets.all(8),
+                                              padding: const EdgeInsets.all(10),
                                               decoration: BoxDecoration(
                                                 color: Colors.grey[50],
-                                                borderRadius: BorderRadius.circular(6),
+                                                borderRadius: BorderRadius.circular(10),
+                                                border: Border.all(
+                                                  color: Colors.grey.shade200,
+                                                ),
                                               ),
                                               child: Text(
                                                 '💬 "${req['pesan'] ?? '-'}"',
                                                 style: TextStyle(
-                                                    fontStyle: FontStyle.italic,
-                                                    color: Colors.grey[800]),
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Colors.grey[800],
+                                                ),
                                               ),
                                             ),
-                                            const SizedBox(height: 10),
+                                            const SizedBox(height: 12),
                                             // Badge Status
                                             Container(
                                               padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10, vertical: 4),
+                                                horizontal: 12,
+                                                vertical: 4,
+                                              ),
                                               decoration: BoxDecoration(
-                                                color: statusColor.withOpacity(0.1),
+                                                color: statusColor.withOpacity(0.12),
                                                 borderRadius: BorderRadius.circular(20),
                                                 border: Border.all(color: statusColor),
                                               ),
@@ -299,14 +337,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                       Column(
                                         children: [
                                           IconButton(
-                                            icon: const Icon(Icons.check_circle, color: Colors.green),
+                                            icon: const Icon(
+                                              Icons.check_circle_rounded,
+                                              color: Colors.lightBlue,
+                                              size: 28,
+                                            ),
                                             tooltip: 'Tandai Diputar',
                                             onPressed: status == 'played'
                                                 ? null
                                                 : () => _updateStatus(id, 'played'),
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.cancel, color: Colors.red),
+                                            icon: const Icon(
+                                              Icons.cancel_rounded,
+                                              color: Colors.redAccent,
+                                              size: 28,
+                                            ),
                                             tooltip: 'Tolak Request',
                                             onPressed: status == 'rejected'
                                                 ? null
@@ -327,7 +373,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  // Widget Kartu Statistik
   Widget _buildStatCard({
     required String title,
     required int count,
@@ -339,13 +384,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withOpacity(0.3)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: color.withOpacity(0.06),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             )
           ],
         ),
@@ -380,13 +425,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  // Widget Chip Filter
   Widget _buildFilterChip(String label, String value) {
     final isSelected = _selectedFilter == value;
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
-      selectedColor: Colors.deepOrange,
+      selectedColor: Colors.lightBlue,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       labelStyle: TextStyle(
         color: isSelected ? Colors.white : Colors.black87,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
