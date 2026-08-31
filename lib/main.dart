@@ -1,6 +1,7 @@
 import 'admin_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'login_screen.dart';
 
 // Config Supabase dari Dashboard kamu
 class AppConstants {
@@ -120,14 +121,14 @@ class _PublicRequestScreenState extends State<PublicRequestScreen> {
         elevation: 2,
         actions: [
           TextButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AdminDashboardScreen(), // 'const' sudah dihapus di sini
-                ),
-              );
-            },
+           onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const LoginScreen(),
+    ),
+  );
+},
             icon: const Icon(Icons.dashboard, color: Colors.white),
             label: const Text(
               'Dashboard Penyiar',
